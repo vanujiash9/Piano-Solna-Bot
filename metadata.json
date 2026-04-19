@@ -1,0 +1,12 @@
+{
+  "name": "Piano Solna Sales Consultant",
+  "description": "An AI-powered sales consultant for Piano Solna store in HCMC, helping customers find the perfect piano through friendly conversation and expert advice.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "AI Chatbot",
+    "Audio Transcription",
+    "Firebase Multi-User"
+  ]
+}
