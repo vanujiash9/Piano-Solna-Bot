@@ -1,6 +1,6 @@
 {
-  "name": "Piano Solna Sales Consultant",
-  "description": "An AI-powered sales consultant for Piano Solna store in HCMC, helping customers find the perfect piano through friendly conversation and expert advice.",
+  "name": "Piano Solna - Tư Vấn Piano Chuyên Nghiệp",
+  "description": "Ứng dụng tư vấn Piano thông minh sử dụng trí tuệ nhân tạo (RAG) để cung cấp thông tin chính xác về kho hàng và kỹ thuật cho khách hàng Piano Solna.",
   "requestFramePermissions": [
     "microphone"
   ],

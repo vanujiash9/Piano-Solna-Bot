@@ -12,12 +12,19 @@ import {
   Phone,
   Info,
   ChevronRight,
-  Music4
+  Music4,
+  Database,
+  LogIn,
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { createPianoChat, transcribeAudio } from './services/geminiService';
 import { cn } from './lib/utils';
 import { supabase, checkSupabaseConnection } from './lib/supabase';
+import { getContextualPrompt } from './lib/ragService';
+import { KnowledgeManager } from './components/KnowledgeManager';
+import { AuthModal } from './components/AuthModal';
 
 interface Message {
   role: 'user' | 'model';
@@ -38,6 +45,9 @@ export default function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [chat, setChat] = useState<any>(null);
   const [dbStatus, setDbStatus] = useState<{connected: boolean, message: string} | null>(null);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -51,7 +61,27 @@ export default function App() {
       setDbStatus(status);
     };
     verifyDb();
+
+    // Listen for auth changes
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Danh sách Admin cố định: Chỉ đúng 2 tài khoản này mới thấy nút Quản lý
+  const ADMIN_EMAILS = [
+    'btthanhvan.19062004@gmail.com', // Email của bạn
+    'admin@pianosolna.vn'           // Email phụ (bạn có thể đổi tùy ý)
+  ];
+
+  const displayUser = user;
+  const isUserAdmin = displayUser && ADMIN_EMAILS.includes(displayUser.email || '');
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -75,7 +105,10 @@ export default function App() {
 
     try {
       if (chat) {
-        const result = await chat.sendMessage({ message: messageText });
+        // Use RAG to get context for the user query
+        const enrichedPrompt = await getContextualPrompt(messageText);
+        
+        const result = await chat.sendMessage({ message: enrichedPrompt });
         const modelMessage: Message = {
           role: 'model',
           content: result.text || 'Dạ, mình xin lỗi, có chút trục trặc kỹ thuật. Bạn nói lại giúp mình nhé!',
@@ -143,98 +176,165 @@ export default function App() {
 
   return (
     <div className="h-screen-safe flex flex-col md:flex-row font-sans bg-bg selection:bg-gold/30 overflow-hidden text-text-main">
+      <KnowledgeManager isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      
       {/* Sidebar - Desktop Only */}
-      <aside className="hidden md:flex bg-surface text-text-main w-1/3 lg:w-1/4 p-10 flex-col justify-between border-r border-line relative overflow-hidden">
+      <aside className="hidden md:flex bg-surface text-text-main w-1/3 lg:w-1/4 p-6 lg:p-8 flex-col justify-between border-r border-line relative overflow-hidden h-full">
         {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl -mr-32 -mt-32" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl -ml-32 -mb-32" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
+          {/* Logo Section - Fixed top */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-4 mb-16"
+            className="flex items-center gap-3 mb-8 shrink-0"
           >
-            <div className="w-14 h-14 bg-gradient-to-br from-gold to-[#B8860B] rounded-2xl flex items-center justify-center text-bg shadow-2xl rotate-3">
-              <Piano size={32} />
+            <div className="w-12 h-12 bg-gradient-to-br from-gold to-[#B8860B] rounded-xl flex items-center justify-center text-bg shadow-xl rotate-3">
+              <Piano size={28} />
             </div>
             <div>
-              <h1 className="font-serif text-3xl font-bold tracking-tight text-white">Piano Solna</h1>
+              <h1 className="font-serif text-2xl font-bold tracking-tight text-white">Piano Solna</h1>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-status-green rounded-full animate-pulse" />
-                <p className="text-gold/90 text-[10px] uppercase tracking-[0.2em] font-bold">CHI NHÁNH TP.HCM</p>
+                <span className="w-1.5 h-1.5 bg-status-green rounded-full animate-pulse" />
+                <p className="text-gold/90 text-[8px] uppercase tracking-[0.2em] font-bold">Showroom Hệ Thống</p>
               </div>
             </div>
           </motion.div>
 
-          <div className="space-y-10">
+          {/* Scrollable Mid Section */}
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8">
             <section>
-              <h2 className="font-serif text-xl mb-4 italic text-gold">Dẫn lối đam mê</h2>
-              <p className="text-text-muted text-sm leading-relaxed font-light">
-                Chào mừng bạn đến với Piano Solna. Chúng tôi tự hào mang đến những cây đàn piano tinh túy nhất từ Yamaha, Kawai và Roland cho ngôi nhà bạn.
+              <h2 className="font-serif text-lg mb-3 italic text-gold">Dẫn lối đam mê</h2>
+              <p className="text-text-muted text-[13px] leading-relaxed font-light mb-4">
+                Chào mừng bạn đến với Piano Solna. Chúng tôi tự hào mang đến những cây đàn piano tinh túy nhất từ Nhật Bản cho ngôi nhà bạn.
               </p>
+              
+              <div className="space-y-1.5">
+                <p className="text-[9px] uppercase tracking-widest text-gold font-bold mb-2">Phân khúc được quan tâm nhất</p>
+                {[
+                  { label: 'Piano cho bé mới tập', query: 'Tư vấn cho bé 5-10 tuổi mới bắt đầu học piano điện' },
+                  { label: 'Ngân sách dưới 20 triệu', query: 'Những mẫu piano điện tốt nhất tầm giá dưới 20 triệu' },
+                  { label: 'Yamaha U3H huyền thoại', query: 'Đánh giá chi tiết và giá bán Yamaha U3H' },
+                  { label: 'Piano điện phím gỗ', query: 'Tư vấn các dòng piano điện có phím gỗ thật như piano cơ' }
+                ].map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSend(item.query)}
+                    className="w-full text-left p-2.5 rounded-lg bg-card border border-line hover:border-gold/40 text-[11px] text-text-muted hover:text-white transition-all flex items-center justify-between group"
+                  >
+                    {item.label}
+                    <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
+                  </button>
+                ))}
+              </div>
             </section>
 
-            <nav className="space-y-6">
-              <div className="flex items-center gap-4 group cursor-pointer">
-                <div className="w-10 h-10 rounded-xl bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
-                  <MapPin size={18} />
+            <nav className="space-y-4">
+              <div className="flex items-start gap-4 group">
+                <div className="w-9 h-9 rounded-lg bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
+                  <MapPin size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Showroom</p>
-                  <p className="text-sm font-medium">TP. Hồ Chí Minh</p>
+                  <p className="text-[9px] uppercase tracking-widest text-text-muted font-bold">Hệ thống Chi nhánh</p>
+                  <p className="text-[10px] font-medium leading-loose text-white/80">
+                    📍 140/27/11 Vườn Lài, Q.12<br/>
+                    📍 142 Lê Hồng Phong, Dĩ An<br/>
+                    📍 Him Lam Phú An, Thủ Đức
+                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 group cursor-pointer">
-                <div className="w-10 h-10 rounded-xl bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
-                  <Phone size={18} />
+              <div className="flex items-center gap-4 group">
+                <div className="w-9 h-9 rounded-lg bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
+                  <Phone size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Liên hệ</p>
-                  <p className="text-sm font-medium">pianosolna.vn</p>
-                </div>
-              </div>
-
-              {/* Database Status Indicator */}
-              <div className="pt-4 border-t border-line/30">
-                <div className="flex items-center gap-3 bg-card/50 p-3 rounded-xl border border-line">
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    dbStatus?.connected ? "bg-status-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-                  )} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-text-muted font-bold">Supabase Status</span>
-                    <span className="text-[11px] font-medium truncate max-w-[150px]">
-                      {dbStatus ? dbStatus.message : 'Đang kiểm tra...'}
-                    </span>
-                  </div>
+                  <p className="text-[9px] uppercase tracking-widest text-text-muted font-bold">Hotline Liên hệ</p>
+                  <p className="text-[11px] font-bold text-white">090 687 6281</p>
+                  <p className="text-[10px] text-text-muted italic">0896 405 421</p>
                 </div>
               </div>
             </nav>
+          </div>
 
-            <div className="pt-6 grid grid-cols-2 gap-4">
-              <div className="bg-card p-4 rounded-2xl border border-line flex flex-col gap-3 hover:bg-gold/10 transition-all cursor-default group">
-                <Music4 size={24} className="text-gold group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-semibold tracking-wide">Piano Điện</span>
-              </div>
-              <div className="bg-card p-4 rounded-2xl border border-line flex flex-col gap-3 hover:bg-gold/10 transition-all cursor-default group">
-                <Piano size={24} className="text-gold group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-semibold tracking-wide">Piano Cơ</span>
+          {/* Fixed Bottom Area */}
+          <div className="mt-8 pt-6 border-t border-line/30 space-y-4 shrink-0">
+            {/* Supabase Status Indicator */}
+            <div className="flex items-center gap-3 bg-card/30 p-2.5 rounded-xl border border-line">
+              <div className={cn(
+                "w-1.5 h-1.5 rounded-full",
+                dbStatus?.connected ? "bg-status-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+              )} />
+              <div className="flex flex-col">
+                <span className="text-[8px] uppercase tracking-wider text-text-muted font-bold">System Status</span>
+                <span className="text-[10px] font-medium truncate">
+                  {dbStatus ? dbStatus.message : 'Đang kiểm tra...'}
+                </span>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="relative z-10 pt-10">
-          <div className="flex items-center gap-2 mb-2">
-             <div className="h-[1px] flex-1 bg-line" />
-             <span className="text-[10px] text-text-muted uppercase tracking-[0.3em]">Hồ Chí Minh</span>
-             <div className="h-[1px] flex-1 bg-line" />
+            {/* Login/User Profile Area */}
+            {!displayUser ? (
+              <button 
+                onClick={() => setIsAuthOpen(true)}
+                className="w-full flex items-center justify-center gap-2 p-3.5 bg-gold/10 border border-gold/30 rounded-xl hover:bg-gold/20 transition-all text-[11px] font-bold text-gold group"
+              >
+                <LogIn size={16} className="group-hover:scale-110 transition-transform" />
+                Đăng nhập hệ thống
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 bg-card/40 rounded-xl border border-line">
+                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold border border-gold/30">
+                    <UserCircle size={20} />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[10px] font-bold text-white truncate">{displayUser.email}</p>
+                    <p className="text-[8px] text-text-muted uppercase tracking-tight">
+                      {isUserAdmin ? 'Quản trị viên' : 'Thành viên Solna'}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => supabase.auth.signOut()}
+                    className="p-1.5 text-text-muted hover:text-red-400 transition-colors"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+
+                 <button 
+                  onClick={() => handleSend('Website chính thức của Piano Solna là gì?')}
+                  className="w-full flex items-center justify-between p-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all text-left group"
+                >
+                  <div>
+                    <p className="text-[8px] uppercase tracking-widest text-blue-400 font-bold">Tìm hiểu thêm</p>
+                    <p className="text-xs font-black text-white italic">Visit: pianosolna.com</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+                    <Info size={14} />
+                  </div>
+                </button>
+
+                {isUserAdmin && (
+                  <button 
+                    onClick={() => setIsAdminOpen(true)}
+                    className="w-full flex items-center justify-between p-3.5 bg-gold/20 border border-gold/50 rounded-xl hover:bg-gold/30 transition-all text-left shadow-lg shadow-gold/5"
+                  >
+                    <div>
+                      <p className="text-[8px] uppercase tracking-widest text-gold font-bold">Bảng điều khiển</p>
+                      <p className="text-xs font-black text-white">Quản lý kho hàng</p>
+                    </div>
+                    <div className="w-7 h-7 rounded-lg bg-gold flex items-center justify-center text-bg">
+                      <Database size={14} />
+                    </div>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          <p className="text-[9px] text-center text-text-muted uppercase tracking-widest">
-            Expertly crafted for musicians
-          </p>
         </div>
       </aside>
 
@@ -287,7 +387,47 @@ export default function App() {
                     <div className={cn(
                       "prose prose-sm max-w-none prose-invert"
                     )}>
-                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          img: ({ node, ...props }) => {
+                            const originalSrc = props.src || '';
+                            const proxiedSrc = originalSrc.startsWith('http') 
+                              ? `https://images.weserv.nl/?url=${encodeURIComponent(originalSrc)}&w=800&output=webp` 
+                              : originalSrc;
+                            
+                            return (
+                              <span className="my-6 block">
+                                <span className="relative block group overflow-hidden rounded-2xl border-2 border-gold/20 shadow-2xl bg-surface p-0">
+                                  <img 
+                                    {...props} 
+                                    src={proxiedSrc}
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (!target.src.includes('wp.com')) {
+                                        target.src = `https://i0.wp.com/${originalSrc.replace(/^https?:\/\//, '')}`;
+                                      } else if (target.src !== originalSrc) {
+                                        target.src = originalSrc; // Thử gọi trực tiếp lần cuối
+                                      }
+                                    }}
+                                    className="block w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" 
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </span>
+                                <a 
+                                  href={originalSrc} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="mt-2 text-[10px] text-gold/40 hover:text-gold flex items-center justify-center gap-1 italic"
+                                >
+                                  <Info size={10} /> Nhấn để xem ảnh gốc nếu bị lỗi
+                                </a>
+                              </span>
+                            );
+                          }
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 </motion.div>
@@ -367,6 +507,30 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* Floating Action Buttons for Customer Experience */}
+      <div className="fixed bottom-32 right-6 md:bottom-10 md:right-10 flex flex-col gap-4 z-50">
+        <motion.a
+          href="https://zalo.me/0906876281" // Số Zalo thật
+          target="_blank"
+          whileHover={{ scale: 1.1, x: -5 }}
+          className="w-14 h-14 bg-[#0068ff] rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-blue-500/20 border-2 border-white/20"
+          title="Chat Zalo"
+        >
+          <img src="https://picsum.photos/seed/zalo-logo/40/40" alt="Zalo" className="w-8 h-8 rounded-lg" />
+        </motion.a>
+        
+        <motion.a
+          href="tel:0906876281" // Số hotline thật
+          whileHover={{ scale: 1.1, x: -5 }}
+          animate={{ y: [0, -5, 0] }}
+          transition={{ repeat: Infinity, duration: 3 }}
+          className="w-14 h-14 bg-status-green rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-green-500/20 border-2 border-white/20"
+          title="Gọi hotline"
+        >
+          <Phone size={24} />
+        </motion.a>
+      </div>
     </div>
   );
 }
