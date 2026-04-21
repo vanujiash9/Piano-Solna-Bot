@@ -5,19 +5,20 @@
   --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   
-  --color-bg: #0a0a0b;
-  --color-surface: #121214;
-  --color-card: #1c1c1f;
-  --color-line: #27272a;
-  --color-gold: #d4af37;
-  --color-text-main: #e4e4e7;
-  --color-text-muted: #71717a;
+  --color-bg: #050506;
+  --color-surface: #0f0f12;
+  --color-card: #17171a;
+  --color-line: #2a2a2e;
+  --color-gold: #e5c366; /* Brighter gold for better contrast */
+  --color-text-main: #ffffff; /* Pure white for maximum contrast */
+  --color-text-muted: #a1a1aa; /* Brighter muted text */
   --color-status-green: #10b981;
 }
 
 @layer base {
   body {
-    @apply bg-bg text-text-main font-sans overscroll-none;
+    @apply bg-bg text-text-main font-sans overscroll-none text-base md:text-lg;
+    letter-spacing: 0.01em;
   }
 
   /* Fix for 100vh on mobile browsers */

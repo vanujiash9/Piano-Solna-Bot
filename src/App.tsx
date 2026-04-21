@@ -234,14 +234,14 @@ export default function App() {
               </div>
             </section>
 
-            <nav className="space-y-4">
+            <nav className="space-y-6">
               <div className="flex items-start gap-4 group">
-                <div className="w-9 h-9 rounded-lg bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
-                  <MapPin size={16} />
+                <div className="w-12 h-12 rounded-xl bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
+                  <MapPin size={22} />
                 </div>
                 <div>
-                  <p className="text-[9px] uppercase tracking-widest text-text-muted font-bold">Hệ thống Chi nhánh</p>
-                  <p className="text-[10px] font-medium leading-loose text-white/80">
+                  <p className="text-[10px] uppercase tracking-widest text-gold font-black mb-1">Hệ thống Chi nhánh</p>
+                  <p className="text-sm md:text-base font-bold leading-relaxed text-white">
                     📍 140/27/11 Vườn Lài, Q.12<br/>
                     📍 142 Lê Hồng Phong, Dĩ An<br/>
                     📍 Him Lam Phú An, Thủ Đức
@@ -250,13 +250,13 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-4 group">
-                <div className="w-9 h-9 rounded-lg bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
-                  <Phone size={16} />
+                <div className="w-12 h-12 rounded-xl bg-card border border-line flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-bg transition-all shrink-0">
+                  <Phone size={22} />
                 </div>
                 <div>
-                  <p className="text-[9px] uppercase tracking-widest text-text-muted font-bold">Hotline Liên hệ</p>
-                  <p className="text-[11px] font-bold text-white">090 687 6281</p>
-                  <p className="text-[10px] text-text-muted italic">0896 405 421</p>
+                  <p className="text-[10px] uppercase tracking-widest text-gold font-black mb-1">Hotline Liên hệ</p>
+                  <p className="text-lg md:text-xl font-black text-white leading-none">090 687 6281</p>
+                  <p className="text-[11px] text-text-muted mt-1 font-medium italic">Hỗ trợ tư vấn 24/7</p>
                 </div>
               </div>
             </nav>
@@ -327,31 +327,31 @@ export default function App() {
       {/* Main Chat Area */}
       <main className="flex-1 flex flex-col relative overflow-hidden bg-bg">
         {/* Chat Header (Mobile Only - Beautiful Redesign) */}
-        <header className="md:hidden px-4 py-3 bg-surface/80 backdrop-blur-xl text-white flex items-center justify-between shadow-lg z-30 border-b border-line/50 sticky top-0">
-          <a href="https://pianosolna.com/" target="_blank" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-gold rounded-xl flex items-center justify-center text-bg shadow-md">
-              <Piano size={20} />
+        <header className="md:hidden px-4 py-4 bg-surface/95 backdrop-blur-xl text-white flex items-center justify-between shadow-lg z-30 border-b-2 border-gold/20 sticky top-0">
+          <a href="https://pianosolna.com/" target="_blank" className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-gradient-to-br from-gold to-[#B8860B] rounded-xl flex items-center justify-center text-bg shadow-lg">
+              <Piano size={24} />
             </div>
             <div className="flex flex-col">
-              <span className="font-serif font-black text-sm tracking-tight leading-tight">Piano Solna</span>
-              <span className="text-[7px] text-gold font-bold uppercase tracking-widest leading-none">Chuyên gia tư vấn</span>
+              <span className="font-serif font-black text-lg tracking-tight leading-tight">Piano Solna</span>
+              <span className="text-[8px] text-gold font-bold uppercase tracking-[0.2em] leading-none mt-1">Chuyên gia tư vấn</span>
             </div>
           </a>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {!displayUser && (
               <button 
                 onClick={() => setIsAuthOpen(true)}
-                className="p-2 text-text-muted hover:text-gold transition-colors"
+                className="p-2.5 bg-white/5 border border-line rounded-xl text-text-muted hover:text-gold transition-colors"
               >
-                <User size={20} />
+                <User size={22} />
               </button>
             )}
             {isUserAdmin && (
               <button 
                 onClick={() => setIsAdminOpen(true)}
-                className="p-2 text-gold animate-pulse"
+                className="p-2.5 bg-gold/20 border border-gold/30 text-gold rounded-xl animate-pulse shadow-lg"
               >
-                <Database size={20} />
+                <Database size={22} />
               </button>
             )}
           </div>
@@ -360,7 +360,7 @@ export default function App() {
         {/* Messages Container */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8 scroll-smooth custom-scrollbar"
+          className="flex-1 overflow-y-auto px-4 md:px-8 py-8 md:py-12 space-y-8 md:space-y-10 scroll-smooth custom-scrollbar"
         >
           <div className="mx-auto max-w-4xl">
             <AnimatePresence initial={false}>
@@ -383,12 +383,12 @@ export default function App() {
                     {m.role === 'user' ? displayUser?.email?.charAt(0).toUpperCase() || <User size={18} /> : <Piano size={18} className="md:w-5 md:h-5" />}
                   </div>
                   <div className={cn(
-                    "p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-sm text-sm md:text-[15px] leading-relaxed max-w-[85%] md:max-w-[75%]",
+                    "p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-xl text-sm md:text-base lg:text-lg leading-relaxed max-w-[88%] md:max-w-[75%]",
                     m.role === 'user' 
-                      ? "bg-line text-white rounded-tr-none border border-line" 
-                      : "bg-surface border border-white/5 shadow-xl rounded-tl-none border border-gold/10"
+                      ? "bg-gold text-bg font-bold rounded-tr-none" 
+                      : "bg-surface border-2 border-white/5 shadow-2xl rounded-tl-none border border-gold/20"
                   )}>
-                    <div className="prose prose-sm md:prose-base max-w-none prose-invert">
+                    <div className="prose prose-sm md:prose-base lg:prose-lg max-w-none prose-invert">
                       <ReactMarkdown
                         components={{
                           img: ({ ...props }) => {
@@ -400,7 +400,7 @@ export default function App() {
                             return (
                               <span className="my-6 block">
                                 <a 
-                                  href={originalSrc} 
+                                  href="https://pianosolna.com/products" 
                                   target="_blank" 
                                   rel="noopener noreferrer"
                                   className="relative block group overflow-hidden rounded-2xl border-2 border-gold/20 shadow-2xl bg-surface p-0 hover:border-gold/50 transition-colors"
@@ -422,7 +422,7 @@ export default function App() {
                                   />
                                   <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <span className="text-white text-[10px] font-bold px-3 py-1.5 bg-gold rounded-full flex items-center gap-1 shadow-lg">
-                                      <Info size={12} /> Xem chi tiết
+                                      <Info size={12} /> Xem tất cả sản phẩm
                                     </span>
                                   </span>
                                 </a>
@@ -465,51 +465,51 @@ export default function App() {
         </div>
 
         {/* Action Toolbar */}
-        <div className="px-4 md:px-10 py-6 border-t border-line/50 bg-bg/80 backdrop-blur-2xl">
-          <div className="mx-auto max-w-4xl space-y-4 md:space-y-6">
+        <div className="px-4 md:px-10 py-6 md:py-10 border-t-2 border-line bg-bg/95 backdrop-blur-3xl">
+          <div className="mx-auto max-w-4xl space-y-6 md:space-y-8">
              {/* Quick Suggestions */}
-             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
+             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
               {['Tư vấn cho bé', 'Tầm 15-20tr', 'Piano Yamaha', 'Giao hàng'].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => handleSend(suggestion)}
-                  className="whitespace-nowrap px-4 py-2 rounded-xl border border-line bg-surface/50 text-[11px] font-bold text-text-muted hover:border-gold hover:text-gold transition-all shadow-sm flex items-center gap-2"
+                  className="whitespace-nowrap px-6 py-3 rounded-2xl border-2 border-line bg-surface text-xs md:text-sm font-bold text-text-main hover:border-gold hover:text-gold transition-all shadow-md flex items-center gap-2 active:scale-95"
                 >
                   {suggestion}
-                  <ChevronRight size={12} className="opacity-50" />
+                  <ChevronRight size={14} className="opacity-50" />
                 </button>
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 md:gap-6">
               <div className="flex-1 relative group">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Hỏi Piano Solna..."
-                  className="w-full pl-5 pr-14 py-4 md:py-5 bg-surface border border-line rounded-2xl md:rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-gold/5 focus:border-gold/30 transition-all shadow-xl text-sm md:text-base text-white placeholder:text-text-muted/50"
+                  placeholder="Gõ thắc mắc của bạn tại đây..."
+                  className="w-full pl-6 pr-16 py-5 md:py-6 bg-surface border-2 border-line rounded-2xl md:rounded-[2.5rem] focus:outline-none focus:ring-4 focus:ring-gold/10 focus:border-gold/50 transition-all shadow-2xl text-base md:text-lg text-white font-medium"
                 />
                 <button
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-full flex items-center justify-center transition-all",
+                    "absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 md:w-14 md:h-14 rounded-xl md:rounded-full flex items-center justify-center transition-all",
                     isRecording 
-                      ? "bg-red-500 text-white shadow-lg animate-pulse scale-105" 
-                      : "text-text-muted hover:text-gold hover:bg-gold/5"
+                      ? "bg-red-500 text-white shadow-xl animate-pulse scale-105" 
+                      : "text-text-muted hover:text-gold bg-bg/30 border border-line"
                   )}
                 >
-                  {isRecording ? <Square size={16} /> : <Mic size={20} />}
+                  {isRecording ? <Square size={20} /> : <Mic size={24} />}
                 </button>
               </div>
               
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
-                className="bg-gold text-bg p-4 md:p-5 rounded-2xl md:rounded-full hover:bg-white hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-gold/30 active:scale-95 group shrink-0"
+                className="bg-gold text-bg p-5 md:p-6 rounded-2xl md:rounded-full hover:bg-white hover:text-gold disabled:opacity-20 transition-all shadow-2xl active:scale-90 group shrink-0"
               >
-                <Send size={22} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <Send size={28} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             </div>
             <p className="text-center text-[8px] md:text-[10px] text-text-muted/40 font-black uppercase tracking-[0.3em]">
