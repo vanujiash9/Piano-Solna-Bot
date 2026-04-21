@@ -41,10 +41,21 @@ export function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     }
 
     try {
-      // Kiểm tra định dạng email cơ bản bằng Regex
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setError('Địa chỉ email không hợp lệ. Vui lòng nhập đúng định dạng (VD: ten@gmail.com)');
+      // Kiểm tra định dạng email nghiêm ngặt
+      const emailRegex = /^[a-zA-Z0-1._%+-]+@([a-z0-1.-]+\.[a-z]{2,})$/;
+      const match = email.toLowerCase().match(emailRegex);
+      
+      if (!match) {
+        setError('Email không hợp lệ. Vui lòng nhập đúng định dạng (VD: ten@gmail.com)');
+        setLoading(false);
+        return;
+      }
+
+      // Kiểm tra xem có phải tên miền phổ biến không (tùy chọn nhưng giúp tránh nhập bậy)
+      const domain = match[1];
+      const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'hotmail.com'];
+      if (!validDomains.includes(domain) && !domain.includes('.')) {
+        setError('Tên miền email không được hỗ trợ hoặc không hợp lệ.');
         setLoading(false);
         return;
       }

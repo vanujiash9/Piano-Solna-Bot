@@ -187,10 +187,12 @@ export default function App() {
 
         <div className="relative z-10 flex flex-col h-full overflow-hidden">
           {/* Logo Section - Fixed top */}
-          <motion.div 
+          <motion.a 
+            href="https://pianosolna.com/"
+            target="_blank"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 mb-8 shrink-0"
+            className="flex items-center gap-3 mb-8 shrink-0 hover:opacity-80 transition-opacity"
           >
             <div className="w-12 h-12 bg-gradient-to-br from-gold to-[#B8860B] rounded-xl flex items-center justify-center text-bg shadow-xl rotate-3">
               <Piano size={28} />
@@ -202,7 +204,7 @@ export default function App() {
                 <p className="text-gold/90 text-[8px] uppercase tracking-[0.2em] font-bold">Showroom Hệ Thống</p>
               </div>
             </div>
-          </motion.div>
+          </motion.a>
 
           {/* Scrollable Mid Section */}
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8">
@@ -260,24 +262,21 @@ export default function App() {
             </nav>
           </div>
 
-          {/* Fixed Bottom Area */}
-          <div className="mt-8 pt-6 border-t border-line/30 space-y-4 shrink-0">
-            {/* Supabase Status Indicator */}
-            <div className="flex items-center gap-3 bg-card/30 p-2.5 rounded-xl border border-line">
-              <div className={cn(
-                "w-1.5 h-1.5 rounded-full",
-                dbStatus?.connected ? "bg-status-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
-              )} />
-              <div className="flex flex-col">
-                <span className="text-[8px] uppercase tracking-wider text-text-muted font-bold">System Status</span>
-                <span className="text-[10px] font-medium truncate">
-                  {dbStatus ? dbStatus.message : 'Đang kiểm tra...'}
-                </span>
-              </div>
-            </div>
+                {/* Fixed Bottom Area */}
+                <div className="mt-8 pt-6 border-t border-line/30 space-y-4 shrink-0">
+                  {/* Supabase Status Indicator (Simplified) */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-line bg-card/20 w-fit">
+                    <div className={cn(
+                      "w-1 h-1 rounded-full",
+                      dbStatus?.connected ? "bg-status-green shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-red-500"
+                    )} />
+                    <span className="text-[7px] uppercase tracking-wider text-text-muted font-bold">
+                      {dbStatus?.connected ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
 
-            {/* Login/User Profile Area */}
-            {!displayUser ? (
+                  {/* Login/User Profile Area */}
+                  {!displayUser ? (
               <button 
                 onClick={() => setIsAuthOpen(true)}
                 className="w-full flex items-center justify-center gap-2 p-3.5 bg-gold/10 border border-gold/30 rounded-xl hover:bg-gold/20 transition-all text-[11px] font-bold text-gold group"
@@ -305,19 +304,6 @@ export default function App() {
                   </button>
                 </div>
 
-                 <button 
-                  onClick={() => handleSend('Website chính thức của Piano Solna là gì?')}
-                  className="w-full flex items-center justify-between p-3.5 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all text-left group"
-                >
-                  <div>
-                    <p className="text-[8px] uppercase tracking-widest text-blue-400 font-bold">Tìm hiểu thêm</p>
-                    <p className="text-xs font-black text-white italic">Visit: pianosolna.com</p>
-                  </div>
-                  <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center text-white">
-                    <Info size={14} />
-                  </div>
-                </button>
-
                 {isUserAdmin && (
                   <button 
                     onClick={() => setIsAdminOpen(true)}
@@ -340,87 +326,109 @@ export default function App() {
 
       {/* Main Chat Area */}
       <main className="flex-1 flex flex-col relative overflow-hidden bg-bg">
-        {/* Chat Header (Mobile Only) */}
-        <header className="md:hidden p-4 bg-surface text-text-main flex items-center justify-between shadow-xl z-20 border-b border-line">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gold rounded-lg flex items-center justify-center text-bg">
-              <Piano size={18} />
+        {/* Chat Header (Mobile Only - Beautiful Redesign) */}
+        <header className="md:hidden px-4 py-3 bg-surface/80 backdrop-blur-xl text-white flex items-center justify-between shadow-lg z-30 border-b border-line/50 sticky top-0">
+          <a href="https://pianosolna.com/" target="_blank" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-gold rounded-xl flex items-center justify-center text-bg shadow-md">
+              <Piano size={20} />
             </div>
-            <span className="font-serif font-bold text-lg tracking-tight">Solna Support</span>
+            <div className="flex flex-col">
+              <span className="font-serif font-black text-sm tracking-tight leading-tight">Piano Solna</span>
+              <span className="text-[7px] text-gold font-bold uppercase tracking-widest leading-none">Chuyên gia tư vấn</span>
+            </div>
+          </a>
+          <div className="flex items-center gap-2">
+            {!displayUser && (
+              <button 
+                onClick={() => setIsAuthOpen(true)}
+                className="p-2 text-text-muted hover:text-gold transition-colors"
+              >
+                <User size={20} />
+              </button>
+            )}
+            {isUserAdmin && (
+              <button 
+                onClick={() => setIsAdminOpen(true)}
+                className="p-2 text-gold animate-pulse"
+              >
+                <Database size={20} />
+              </button>
+            )}
           </div>
-          <button className="text-gold">
-            <Info size={22} />
-          </button>
         </header>
 
         {/* Messages Container */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 md:p-10 space-y-8 scroll-smooth"
+          className="flex-1 overflow-y-auto px-4 md:px-8 py-6 md:py-10 space-y-6 md:space-y-8 scroll-smooth custom-scrollbar"
         >
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-4xl">
             <AnimatePresence initial={false}>
               {messages.map((m) => (
-                <motion.div
+                <motion.div 
                   key={m.id}
-                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   className={cn(
-                    "flex gap-4 mb-8",
+                    "flex gap-3 md:gap-4 mb-6 md:mb-8",
                     m.role === 'user' ? "flex-row-reverse" : "flex-row"
                   )}
                 >
                   <div className={cn(
-                    "w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center shadow-md border",
+                    "w-9 h-9 md:w-10 md:h-10 rounded-xl md:rounded-2xl shrink-0 flex items-center justify-center shadow-md border",
                     m.role === 'user' 
-                      ? "bg-line border-line text-white" 
+                      ? "bg-line border-line text-gold font-bold" 
                       : "bg-surface border-line text-gold"
                   )}>
-                    {m.role === 'user' ? <User size={20} /> : <Piano size={20} />}
+                    {m.role === 'user' ? displayUser?.email?.charAt(0).toUpperCase() || <User size={18} /> : <Piano size={18} className="md:w-5 md:h-5" />}
                   </div>
                   <div className={cn(
-                    "p-5 rounded-3xl shadow-sm text-[15px] leading-relaxed max-w-[85%] md:max-w-[70%]",
+                    "p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-sm text-sm md:text-[15px] leading-relaxed max-w-[85%] md:max-w-[75%]",
                     m.role === 'user' 
                       ? "bg-line text-white rounded-tr-none border border-line" 
-                      : "bg-gold/5 text-text-main rounded-tl-none border border-gold/20"
+                      : "bg-surface border border-white/5 shadow-xl rounded-tl-none border border-gold/10"
                   )}>
-                    <div className={cn(
-                      "prose prose-sm max-w-none prose-invert"
-                    )}>
+                    <div className="prose prose-sm md:prose-base max-w-none prose-invert">
                       <ReactMarkdown
                         components={{
-                          img: ({ node, ...props }) => {
+                          img: ({ ...props }) => {
                             const originalSrc = props.src || '';
                             const proxiedSrc = originalSrc.startsWith('http') 
-                              ? `https://images.weserv.nl/?url=${encodeURIComponent(originalSrc)}&w=800&output=webp` 
+                              ? `https://images.weserv.nl/?url=${encodeURIComponent(originalSrc)}&w=800` 
                               : originalSrc;
                             
                             return (
                               <span className="my-6 block">
-                                <span className="relative block group overflow-hidden rounded-2xl border-2 border-gold/20 shadow-2xl bg-surface p-0">
+                                <a 
+                                  href={originalSrc} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="relative block group overflow-hidden rounded-2xl border-2 border-gold/20 shadow-2xl bg-surface p-0 hover:border-gold/50 transition-colors"
+                                >
                                   <img 
                                     {...props} 
                                     src={proxiedSrc}
-                                    onError={(e) => {
+                                    onError={(e: any) => {
                                       const target = e.target as HTMLImageElement;
-                                      if (!target.src.includes('wp.com')) {
+                                      if (!target.src.includes('weserv.nl')) {
+                                        target.src = `https://images.weserv.nl/?url=${encodeURIComponent(originalSrc)}&w=800`;
+                                      } 
+                                      else if (!target.src.includes('wp.com')) {
                                         target.src = `https://i0.wp.com/${originalSrc.replace(/^https?:\/\//, '')}`;
-                                      } else if (target.src !== originalSrc) {
-                                        target.src = originalSrc; // Thử gọi trực tiếp lần cuối
                                       }
                                     }}
                                     className="block w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" 
                                     referrerPolicy="no-referrer"
                                   />
-                                </span>
-                                <a 
-                                  href={originalSrc} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="mt-2 text-[10px] text-gold/40 hover:text-gold flex items-center justify-center gap-1 italic"
-                                >
-                                  <Info size={10} /> Nhấn để xem ảnh gốc nếu bị lỗi
+                                  <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span className="text-white text-[10px] font-bold px-3 py-1.5 bg-gold rounded-full flex items-center gap-1 shadow-lg">
+                                      <Info size={12} /> Xem chi tiết
+                                    </span>
+                                  </span>
                                 </a>
+                                <span className="mt-2 text-[10px] text-gold/40 flex items-center justify-center gap-1 italic opacity-60">
+                                  Hệ thống Piano Solna
+                                </span>
                               </span>
                             );
                           }
@@ -457,53 +465,56 @@ export default function App() {
         </div>
 
         {/* Action Toolbar */}
-        <div className="px-4 md:px-10 py-6 border-t border-line bg-surface/60 backdrop-blur-xl">
-          <div className="mx-auto max-w-3xl space-y-4">
+        <div className="px-4 md:px-10 py-6 border-t border-line/50 bg-bg/80 backdrop-blur-2xl">
+          <div className="mx-auto max-w-4xl space-y-4 md:space-y-6">
              {/* Quick Suggestions */}
              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
-              {['Tư vấn cho bé học', 'Tầm 15-20 triệu', 'Piano điện Yamaha', 'Giao hàng thế nào?'].map((suggestion) => (
+              {['Tư vấn cho bé', 'Tầm 15-20tr', 'Piano Yamaha', 'Giao hàng'].map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => handleSend(suggestion)}
-                  className="whitespace-nowrap px-5 py-2 rounded-2xl border border-line bg-card text-xs font-semibold text-text-muted hover:border-gold hover:text-gold hover:bg-gold/5 transition-all shadow-sm flex items-center gap-2 group"
+                  className="whitespace-nowrap px-4 py-2 rounded-xl border border-line bg-surface/50 text-[11px] font-bold text-text-muted hover:border-gold hover:text-gold transition-all shadow-sm flex items-center gap-2"
                 >
                   {suggestion}
-                  <ChevronRight size={14} className="text-text-muted group-hover:text-gold transition-colors" />
+                  <ChevronRight size={12} className="opacity-50" />
                 </button>
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="flex-1 relative group">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Gõ thắc mắc của bạn tại đây..."
-                  className="w-full pl-6 pr-14 py-5 bg-bg border border-line rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-gold/10 focus:border-gold/40 transition-all shadow-sm text-sm text-white"
+                  placeholder="Hỏi Piano Solna..."
+                  className="w-full pl-5 pr-14 py-4 md:py-5 bg-surface border border-line rounded-2xl md:rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-gold/5 focus:border-gold/30 transition-all shadow-xl text-sm md:text-base text-white placeholder:text-text-muted/50"
                 />
                 <button
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center transition-all",
+                    "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-full flex items-center justify-center transition-all",
                     isRecording 
-                      ? "bg-red-500 text-white shadow-lg shadow-red-200 animate-pulse scale-110" 
-                      : "text-gray-400 border border-gray-100 bg-gray-50 hover:text-gold hover:bg-gold/10 hover:border-gold/20"
+                      ? "bg-red-500 text-white shadow-lg animate-pulse scale-105" 
+                      : "text-text-muted hover:text-gold hover:bg-gold/5"
                   )}
                 >
-                  {isRecording ? <Square size={18} /> : <Mic size={20} />}
+                  {isRecording ? <Square size={16} /> : <Mic size={20} />}
                 </button>
               </div>
               
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
-                className="bg-gold text-bg p-5 rounded-full hover:bg-gold/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl hover:shadow-gold/20 hover:-translate-y-0.5 active:translate-y-0 group"
+                className="bg-gold text-bg p-4 md:p-5 rounded-2xl md:rounded-full hover:bg-white hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-gold/30 active:scale-95 group shrink-0"
               >
-                <Send size={22} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <Send size={22} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
             </div>
+            <p className="text-center text-[8px] md:text-[10px] text-text-muted/40 font-black uppercase tracking-[0.3em]">
+              Piano Solna AI • Premium Assistant
+            </p>
           </div>
         </div>
       </main>
