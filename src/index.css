@@ -17,7 +17,7 @@
 
 @layer base {
   body {
-    @apply bg-bg text-text-main font-sans overscroll-none text-base md:text-lg;
+    @apply bg-bg text-text-main font-sans overscroll-none text-sm md:text-base;
     letter-spacing: 0.01em;
   }
 

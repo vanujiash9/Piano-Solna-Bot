@@ -204,13 +204,16 @@ export function KnowledgeManager({ isOpen, onClose }: { isOpen: boolean; onClose
         <motion.div 
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-4 bg-black/80 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="knowledge-modal-title"
         >
           <motion.div 
             initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
             className="bg-surface border border-line w-full max-w-5xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
           >
             {/* Tabs */}
-            <div className="flex bg-bg/50 border-b border-line">
+            <div className="flex bg-bg/50 border-b border-line" id="knowledge-modal-title">
               {[
                 { id: 'pianos', icon: <Database size={16}/>, label: 'Đàn Piano' },
                 { id: 'courses', icon: <BookOpen size={16}/>, label: 'Khóa Học' },

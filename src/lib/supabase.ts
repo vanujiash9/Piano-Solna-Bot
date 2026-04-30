@@ -191,6 +191,14 @@ export async function signInWithEmail(email: string, password: string) {
   return data;
 }
 
+export async function resetPasswordForEmail(email: string) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/`,
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -264,6 +272,88 @@ export async function updateMissingEmbeddings(onProgress?: (count: number) => vo
   }
   console.log(`Hoàn tất cập nhật AI. Tổng số được xử lý: ${totalUpdated}`);
   return totalUpdated;
+}
+
+// Chat Persistence & Real-time
+export async function getOrCreateSession(userEmail?: string, userName?: string) {
+  const sessionId = localStorage.getItem('piano_solna_sid');
+  
+  if (sessionId) {
+    const { data: existing } = await supabase.from('chat_sessions').select('*').eq('id', sessionId).single();
+    if (existing) return existing;
+  }
+
+  const { data: newSession, error } = await supabase
+    .from('chat_sessions')
+    .insert({ user_email: userEmail, user_name: userName })
+    .select()
+    .single();
+
+  if (newSession) {
+    localStorage.setItem('piano_solna_sid', newSession.id);
+    return newSession;
+  }
+  return null;
+}
+
+export async function saveMessage(sessionId: string, role: 'user' | 'model' | 'admin', content: string, media?: { url: string, type: string }) {
+  const { error } = await supabase
+    .from('chat_messages')
+    .insert({
+      session_id: sessionId,
+      role,
+      content,
+      media_url: media?.url,
+      media_type: media?.type
+    });
+  
+  // Update last activity
+  await supabase.from('chat_sessions').update({ last_message_at: new Date().toISOString() }).eq('id', sessionId);
+  
+  if (error) throw error;
+}
+
+export async function getSessionMessages(sessionId: string) {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: true });
+  
+  return data || [];
+}
+
+export async function uploadMedia(file: File) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random()}.${fileExt}`;
+  const filePath = `chat/${fileName}`;
+
+  const { data, error } = await supabase.storage
+    .from('piano-solna-media')
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('piano-solna-media')
+    .getPublicUrl(filePath);
+
+  return {
+    url: publicUrl,
+    type: file.type.startsWith('video') ? 'video' : 'image'
+  };
+}
+
+export async function getAllSessions() {
+  const { data, error } = await supabase
+    .from('chat_sessions')
+    .select('*')
+    .order('last_message_at', { ascending: false });
+  return data || [];
+}
+
+export async function markSessionHelp(sessionId: string, needsHelp: boolean) {
+  await supabase.from('chat_sessions').update({ needs_human: needsHelp }).eq('id', sessionId);
 }
 
 export async function getCurrentUser() {
